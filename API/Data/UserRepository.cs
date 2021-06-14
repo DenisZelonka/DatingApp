@@ -33,9 +33,6 @@ namespace API.Data
         public async Task<PagedList<MemberDtO>> GetMembersAsync(UserParams userParams)
         {
             var query = _context.Users.AsQueryable();
-                /*.ProjectTo<MemberDtO>(_mapper.ConfigurationProvider)
-                .AsNoTracking()
-                .AsQueryable();*/
             
             query = query.Where(u => u.UserName != userParams.CurrentUsername);
             query = query.Where(u => u.Gender == userParams.Gender);
@@ -71,16 +68,18 @@ namespace API.Data
 
         }
 
+        public async Task<string> GetUserGender(string username)
+        {
+            return await _context.Users
+                .Where(x => x.UserName == username)
+                .Select(x => x.Gender).FirstOrDefaultAsync();
+        }
+
         public async Task<IEnumerable<AppUser>> GetUsersAsync()
         {
             return await _context.Users
             .Include(p => p.Photos)
             .ToListAsync();
-        }
-
-        public async Task<bool> SaveAllAsync()
-        {
-            return await _context.SaveChangesAsync() > 0;
         }
 
         public void Update(AppUser user)
